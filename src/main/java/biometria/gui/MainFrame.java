@@ -1,6 +1,8 @@
 package biometria.gui;
 
 import biometria.operations.ImageOperation;
+import biometria.operations.point.BrightnessOperation;
+import biometria.operations.point.ContrastOperation;
 import biometria.operations.point.GrayScaleOperation;
 import biometria.operations.point.NegativeOperation;
 import biometria.service.EditorService;
@@ -139,6 +141,41 @@ public class MainFrame extends JFrame {
 
         operationsMenu.add(grayScaleItem);
         operationsMenu.add(negativeItem);
+
+
+        JMenuItem brightnessItem = new JMenuItem("Korekta jasności");
+        brightnessItem.addActionListener(e -> {
+            if (!validateImageLoaded()) return;
+
+            String input = JOptionPane.showInputDialog(this, "Podaj wartość zmiany jasności (-255 do 255):", "0");
+            if (input != null) {
+                try {
+                    int offset = Integer.parseInt(input);
+                    applyOperation(new BrightnessOperation(offset));
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Proszę podać prawidłową liczbę całkowitą.");
+                }
+            }
+        });
+        operationsMenu.add(brightnessItem);
+
+
+        JMenuItem contrastItem = new JMenuItem("Korekta kontrastu");
+        contrastItem.addActionListener(e-> {
+            if(!validateImageLoaded()) return;
+
+            String input = JOptionPane.showInputDialog(this,"Podaj wartość zmiany kontrastu (-255 do 255):","0");
+            if(input!= null){
+                try{
+                    int offset = Integer.parseInt(input);
+                    applyOperation(new ContrastOperation(offset));
+                } catch (NumberFormatException ex){
+                    JOptionPane.showMessageDialog(this, "Proszę podać prawidłową liczbę całkowitą.");
+                }
+            }
+        });
+
+        operationsMenu.add(contrastItem);
 
         return operationsMenu;
     }
