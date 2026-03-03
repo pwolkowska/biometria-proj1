@@ -143,18 +143,35 @@ public class MainFrame extends JFrame {
         operationsMenu.add(negativeItem);
 
 
+//        JMenuItem brightnessItem = new JMenuItem("Korekta jasności");
+//        brightnessItem.addActionListener(e -> {
+//            if (!validateImageLoaded()) return;
+//
+//            String input = JOptionPane.showInputDialog(this, "Podaj wartość zmiany jasności (-255 do 255):", "0");
+//            if (input != null) {
+//                try {
+//                    int offset = Integer.parseInt(input);
+//                    applyOperation(new BrightnessOperation(offset));
+//                } catch (NumberFormatException ex) {
+//                    JOptionPane.showMessageDialog(this, "Proszę podać prawidłową liczbę całkowitą.");
+//                }
+//            }
+//        });
+//        operationsMenu.add(brightnessItem);
+
         JMenuItem brightnessItem = new JMenuItem("Korekta jasności");
         brightnessItem.addActionListener(e -> {
             if (!validateImageLoaded()) return;
 
-            String input = JOptionPane.showInputDialog(this, "Podaj wartość zmiany jasności (-255 do 255):", "0");
-            if (input != null) {
-                try {
-                    int offset = Integer.parseInt(input);
-                    applyOperation(new BrightnessOperation(offset));
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Proszę podać prawidłową liczbę całkowitą.");
-                }
+            Integer value = ParameterDialog.showSliderDialog(
+                    this,
+                    "Korekta jasności",
+                    "Dostosuj jasność obrazu",
+                    -255, 255, 0
+            );
+
+            if (value != null) {
+                applyOperation(new BrightnessOperation(value));
             }
         });
         operationsMenu.add(brightnessItem);
