@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 public class ParameterDialog {
 
-
     public static Integer showSliderDialog(
             Component parent,
             String title,
