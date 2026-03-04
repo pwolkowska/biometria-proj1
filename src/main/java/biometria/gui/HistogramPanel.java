@@ -18,6 +18,11 @@ public class HistogramPanel extends JPanel {
 
     }
 
+    public void updateHistogram(ImageMatrix image) {
+        calculateHistogram(image);
+        repaint();
+    }
+
     private void calculateHistogram(ImageMatrix image){
         counts = new int[256];
         maxCount = 0;
@@ -42,6 +47,7 @@ public class HistogramPanel extends JPanel {
             }
         }
     }
+
     @Override
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
