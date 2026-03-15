@@ -16,6 +16,9 @@ public class MainFrame extends JFrame {
     private final ImagePanel imagePanel;
     private final FileHandler fileHandler;
 
+    private SwingWorker<ImageMatrix, Void> previewWorker;
+    private volatile int pendingPreviewValue;
+
     private JSplitPane splitPane;
     private JPanel sidePanel;
 
@@ -92,7 +95,6 @@ public class MainFrame extends JFrame {
         objectDarkRadio.addActionListener(e -> updateProjectionsPanel());
         objectBrightRadio.addActionListener(e -> updateProjectionsPanel());
 
-        // Układ prawego panelu: histogram + projekcje pod spodem
         JPanel rightTop = new JPanel();
         rightTop.setLayout(new BoxLayout(rightTop, BoxLayout.Y_AXIS));
         rightTop.setBackground(LIGHT_GRAY);
@@ -176,7 +178,9 @@ public class MainFrame extends JFrame {
         item.addActionListener(e -> {
             if (!validateImageLoaded()) return;
 
-            ImageMatrix originalForPreview = editorService.getCurrent().copy();
+            final javax.swing.Timer localPreviewTimer =
+                    new javax.swing.Timer(60, ev -> startPreviewWorker(operationFactory));
+            localPreviewTimer.setRepeats(false);
 
             Integer value = ParameterDialog.showSliderDialog(
                     this,
@@ -184,18 +188,15 @@ public class MainFrame extends JFrame {
                     description,
                     min, max, initial,
                     (currentValue) -> {
-                        ImageMatrix preview = operationFactory.apply(currentValue).apply(originalForPreview);
-                        imagePanel.setImage(preview);
-
-                        if (currentHistogramPanel != null) {
-                            currentHistogramPanel.updateHistogram(preview);
-                        }
-                        updateProjections(preview);
+                        pendingPreviewValue = currentValue;
+                        localPreviewTimer.restart();
                     }
             );
 
-            // wróć do "oryginału podglądu"
-            imagePanel.setImage(originalForPreview);
+            localPreviewTimer.stop();
+            if (previewWorker != null && !previewWorker.isDone()) {
+                previewWorker.cancel(true);
+            }
 
             if (value != null) {
                 applyOperation(operationFactory.apply(value));
@@ -205,6 +206,43 @@ public class MainFrame extends JFrame {
         });
 
         menu.add(item);
+    }
+
+
+    private void startPreviewWorker(Function<Integer, ImageOperation> operationFactory) {
+        if (previewWorker != null && !previewWorker.isDone()) {
+            previewWorker.cancel(true);
+        }
+
+        final int value = pendingPreviewValue;
+
+        previewWorker = new SwingWorker<>() {
+            @Override
+            protected ImageMatrix doInBackground() {
+                ImageMatrix base = editorService.getCurrent().copy(); // zawsze ostatni zatwierdzony stan
+                return operationFactory.apply(value).apply(base);
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled()) return;
+
+                try {
+                    ImageMatrix preview = get();
+                    imagePanel.setImage(preview);
+
+                    if (currentHistogramPanel != null) {
+                        currentHistogramPanel.updateHistogram(preview);
+                    }
+
+                    updateProjections(preview);
+
+                } catch (Exception ex) {
+                }
+            }
+        };
+
+        previewWorker.execute();
     }
 
     boolean validateImageLoaded() {
