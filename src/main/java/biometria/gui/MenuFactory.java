@@ -101,6 +101,10 @@ public class MenuFactory {
         //operationsMenu.add(grayScaleItem);
         operationsMenu.add(negativeItem);
 
+        JMenuItem eqItem = new JMenuItem("Wyrównaj Histogram (Auto-Korekta)");
+        eqItem.addActionListener(e -> frame.applyOperation(new HistogramEqualizationOperation()));
+        operationsMenu.add(eqItem);
+
         frame.createParametricOperationItem(
                 operationsMenu,
                 "Korekta jasności",
