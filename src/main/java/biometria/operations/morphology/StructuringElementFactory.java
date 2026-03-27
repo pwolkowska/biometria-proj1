@@ -4,7 +4,7 @@ public final class StructuringElementFactory {
 
     private StructuringElementFactory() {}
 
-    // zwraca maskę SE jako boolean[size][size], gdzie true oznacza "należy do SE
+    // zwraca maskę SE jako boolean[size][size], gdzie true oznacza "należy do SE"
     public static boolean[][] create(int size, StructuringElementShape shape) {
         if (size <= 0) throw new IllegalArgumentException("rozmiar musi być > 0");
         if (size % 2 == 0) throw new IllegalArgumentException("rozmiar musi być nieparzysty (3,5,7,...)");

@@ -1,26 +1,20 @@
 package biometria.operations.morphology;
 
 public enum StructuringElementShape {
-    RECT("rect"),
-    CROSS("cross"),
-    ELLIPSE("ellipse"),
-    HORIZONTAL("horizontal"),
-    VERTICAL("vertical");
+    RECT("Kwadrat"),
+    CROSS("Krzyżyk"),
+    ELLIPSE("Koło (wpisane)"),
+    HORIZONTAL("Linia pozioma"),
+    VERTICAL("Linia pionowa");
 
-    private final String id;
+    private final String displayName;
 
-    StructuringElementShape(String id) {
-        this.id = id;
+    StructuringElementShape(String displayName) {
+        this.displayName = displayName;
     }
 
-    public String id() {
-        return id;
-    }
-
-    public static StructuringElementShape fromId(String id) {
-        for (StructuringElementShape s : values()) {
-            if (s.id.equalsIgnoreCase(id)) return s;
-        }
-        throw new IllegalArgumentException("Nieznany kształt: " + id);
+    @Override
+    public String toString() {
+        return displayName;
     }
 }
