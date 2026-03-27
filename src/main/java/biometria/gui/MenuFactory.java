@@ -3,6 +3,7 @@ package biometria.gui;
 import biometria.operations.filter.ConvolutionOperation;
 import biometria.operations.filter.RobertsOperation;
 import biometria.operations.filter.SobelOperation;
+import biometria.operations.morphology.*;
 import biometria.operations.point.*;
 import biometria.operations.point.grayscale.GrayScaleAverageOperation;
 import biometria.operations.point.grayscale.GrayScaleLightnessOperation;
@@ -184,6 +185,79 @@ public class MenuFactory {
 
         operationsMenu.addSeparator();
         operationsMenu.add(convolutionMenu);
+
+        JMenu morphologyMenu = new JMenu("Operacje Morfologiczne");
+
+        morphologyMenu.add(new JMenuItem("Erozja") {{
+            addActionListener(e -> {
+                if (!frame.validateImageLoaded()) return;
+
+                ParameterDialog.MorphParams p = ParameterDialog.showMorphologyDialog(
+                        frame,
+                        "Erozja - parametry",
+                        true
+                );
+                if (p == null) return;
+
+                frame.applyOperation(
+                        new BinaryThenOperation(128,
+                                new RepeatOperation(new ErosionOperation(p.size, p.shape), p.iterations)
+                        )
+                );
+            });
+        }});
+
+        morphologyMenu.add(new JMenuItem("Dylatacja") {{
+            addActionListener(e -> {
+                if (!frame.validateImageLoaded()) return;
+
+                ParameterDialog.MorphParams p = ParameterDialog.showMorphologyDialog(
+                        frame,
+                        "Dylatacja - parametry",
+                        true
+                );
+                if (p == null) return;
+
+                frame.applyOperation(
+                        new BinaryThenOperation(128,
+                                new RepeatOperation(new DilatationOperation(p.size, p.shape), p.iterations)
+                        )
+                );
+            });
+        }});
+
+        morphologyMenu.add(new JMenuItem("Otwarcie") {{
+            addActionListener(e -> {
+                if (!frame.validateImageLoaded()) return;
+
+                ParameterDialog.MorphParams p = ParameterDialog.showMorphologyDialog(
+                        frame,
+                        "Otwarcie - parametry",
+                        false
+                );
+                if (p == null) return;
+
+                frame.applyOperation(new BinaryThenOperation(128, new OpeningOperation(p.size, p.shape)));
+            });
+        }});
+
+        morphologyMenu.add(new JMenuItem("Zamknięcie") {{
+            addActionListener(e -> {
+                if (!frame.validateImageLoaded()) return;
+
+                ParameterDialog.MorphParams p = ParameterDialog.showMorphologyDialog(
+                        frame,
+                        "Zamknięcie - parametry",
+                        false
+                );
+                if (p == null) return;
+
+                frame.applyOperation(new BinaryThenOperation(128, new ClosingOperation(p.size, p.shape)));
+            });
+        }});
+
+        operationsMenu.addSeparator();
+        operationsMenu.add(morphologyMenu);
 
         JMenuItem customKernelItem = new JMenuItem("Filtr własny");
         customKernelItem.addActionListener(e -> {
